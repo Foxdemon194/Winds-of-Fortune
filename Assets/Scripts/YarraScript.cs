@@ -1,11 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+
 
 public class YarraScript : MonoBehaviour
 {
-    public static int exp;
+    public int exp;
     public static int weaponDamage;
+
+    [SerializeField] int currentPosition; //private this when done
+
+    public bool isBusy;
 
     int crossbow = 3;
     int flail = 4;
@@ -13,51 +19,220 @@ public class YarraScript : MonoBehaviour
     int dragonSlayer = 6;
     int spellOfTheGods = 7;
 
-    int lootEvents = 5;
-    int restEvents = 7;
-    int encounterEvents = 15;
+    string monName;
+
+
+   [SerializeField] MapScript mapScript;
+    [SerializeField] DialogMan dialogMan;
+
+    [SerializeField] RoomType[] roomTypeArray;
+    [SerializeField] WeaponType[] weaponTypeArray;
+    [SerializeField] EnemyType[] enemyTypeArray;
+
+    [SerializeField] List<EnemyType> enemyTypeList;
+
 
     private void Start()
     {
+        currentPosition = 0;
         exp = 0;
         weaponDamage = 0;
+        IsBusy(false);
+        roomTypeArray = RoomAssigner();
+        weaponTypeArray = WeaponAssigner();
+        enemyTypeArray = EnemyAssigner();
+        enemyTypeList = enemyTypeArray.ToList();
     }
 
     public void Dismount()
     {
-        bool amRolling = true;
-        while (amRolling)
+        if (isBusy == false)
         {
-            Debug.Log("I was called");
-            int whatHappens = Random.Range(1, 4);
-            if (whatHappens == 1 && encounterEvents >= 1)
+            if (roomTypeArray[currentPosition] == RoomType.Boss)
             {
-                Encounter();
-                amRolling = false;
-
+                FinalEncounter();
             }
-            if (whatHappens == 2 && restEvents >= 1)
-            {
-                Rest();
-                amRolling = false;
-            }
-            if (whatHappens == 3 && lootEvents >= 1)
+            else if (roomTypeArray[currentPosition] == RoomType.Weapon)
             {
                 Loot();
-                amRolling = false;
+            }
+            else if (roomTypeArray[currentPosition] == RoomType.Rest)
+            {
+                Rest();
+            }
+            else if (roomTypeArray[currentPosition] == RoomType.Encounter)
+            {
+                Encounter();
             }
             else
             {
-                Debug.Log("Dismount() encountered an error");
+                throw new System.Exception("Dismount didn't identify a known room type");
             }
-            Debug.Log("Encounters: " + encounterEvents + " / Rests: " + restEvents + " / Loots: " + lootEvents);
         }
+        IsBusy(true);
     }
 
-    public int Travel()
+    private  RoomType[] RoomAssigner()
     {
-        int movement = Random.Range(1, 7);
-        return movement;
+        List<int> indexList = Enumerable.Range(0, 27).ToList();
+        RoomType[] roomTypeArray = Enumerable.Repeat(RoomType.Encounter, 28).ToArray();
+        for (int i = 0; i < 5; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            roomTypeArray[indexList[randIndex]] = RoomType.Weapon;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 7; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            roomTypeArray[indexList[randIndex]] = RoomType.Rest;
+            indexList.RemoveAt(randIndex);
+        }
+        roomTypeArray[27] = RoomType.Boss;
+        return roomTypeArray; 
+    }
+
+    private WeaponType[] WeaponAssigner()
+    {
+        List<int> indexList = Enumerable.Range(0, 5).ToList();
+        WeaponType[] weaponTypeArray = Enumerable.Repeat(WeaponType.Crossbow, 5).ToArray();
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            weaponTypeArray[indexList[randIndex]] = WeaponType.Flail;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            weaponTypeArray[indexList[randIndex]] = WeaponType.BroadSword;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            weaponTypeArray[indexList[randIndex]] = WeaponType.DragonSlayer;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            weaponTypeArray[indexList[randIndex]] = WeaponType.SpellOfTheGods;
+            indexList.RemoveAt(randIndex);
+        }
+        return weaponTypeArray;
+    }
+
+    private EnemyType[] EnemyAssigner()
+    {
+        List<int> indexList = Enumerable.Range(0, 15).ToList();
+        EnemyType[] enemyTypeArray = Enumerable.Repeat(EnemyType.Goblin, 16).ToArray();
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Troll;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Troll;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Bandit;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Fanatic;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Cultist;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Bear;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Gryphon;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Wyvern;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Harpy;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Mimic;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Karen;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.AnimatedWeapon;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.FireElemental;
+            indexList.RemoveAt(randIndex);
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            int randIndex = Random.Range(0, indexList.Count);
+            enemyTypeArray[indexList[randIndex]] = EnemyType.Depression;
+            indexList.RemoveAt(randIndex);
+        }
+        enemyTypeArray[15] = EnemyType.Dragon;
+
+        return enemyTypeArray;
+    }
+
+    public void Travel()
+    {
+            int movement = Random.Range(1, 7);
+            currentPosition += movement;
+            if (currentPosition > 26)
+            {
+                currentPosition = 26;
+                mapScript.NewRoom(27);
+                return;
+            }
+            mapScript.NewRoom(currentPosition);
+        IsBusy(false);
+    }
+
+    void FinalEncounter()
+    {
+
     }
 
     public int Attack()
@@ -71,28 +246,78 @@ public class YarraScript : MonoBehaviour
         weaponDamage = newDamage;
     }
 
-    public void AddEXP(int newExp)
-    {
-        exp += newExp;
-    }
-
     void Encounter()
     {
-        encounterEvents--;
-        Debug.Log("Encounter was selected");
+        int i = Random.Range(0, enemyTypeList.Count);
+        dialogMan.RoomInt(3);
+        monName = enemyTypeList[i].ToString();
+        dialogMan.NewDialog("You encountered a " + monName + "!");
+        enemyTypeList.RemoveAt(i);
     }
 
     void Rest()
     {
-        restEvents--;
-        Debug.Log("Rest was selected");
+        dialogMan.RoomInt(1);
+        dialogMan.NewDialog("There is nothing for you to do, so you reflect upon your adventures thus far. \n(You take the time to train and enchance your reflexes)");
     }
 
     void Loot()
     {
-        lootEvents--;
+        dialogMan.RoomInt(2);
+        //make a variable that randomly selects a weapon
+        dialogMan.NewDialog("You stumble upon a "  );
         Debug.Log("Loot was selected");
     }
+
+    public void IsBusy(bool isItBusy)
+    {
+        isBusy = isItBusy;
+    }
+
+    public void TrueRestButton()
+    {
+        exp++;
+        dialogMan.ExpUpdate(exp);
+    }
+
+
+
+}
+
+public enum RoomType
+{
+    Rest,
+    Weapon,
+    Encounter,
+    Boss
+}
+
+public enum WeaponType
+{
+    Crossbow,
+    Flail,
+    BroadSword,
+    DragonSlayer,
+    SpellOfTheGods
+}
+
+public enum EnemyType
+{
+    Goblin,
+    Troll,
+    Bandit,
+    Fanatic,
+    Cultist,
+    Bear,
+    Gryphon,
+    Wyvern,
+    Harpy,
+    Mimic,
+    Karen,
+    AnimatedWeapon,
+    FireElemental,
+    Depression,
+    Dragon
 }
 
 
