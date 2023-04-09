@@ -258,6 +258,7 @@ public class YarraScript : MonoBehaviour
         if (damage >= enemyHP) 
         {
             exp++;
+            dialogMan.HideSprites();
             dialogMan.ExpUpdate(exp);
             if(currentPosition == 27)
             {
@@ -352,6 +353,7 @@ public class YarraScript : MonoBehaviour
             enemyHP = 7;
         }
         dialogMan.NewHP(enemyHP);
+        dialogMan.NewEnemySprite(monName);
         enemyTypeList.RemoveAt(x);
     }
 
