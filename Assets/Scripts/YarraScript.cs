@@ -217,21 +217,38 @@ public class YarraScript : MonoBehaviour
 
     public void Travel()
     {
-            int movement = Random.Range(1, 7);
-            currentPosition += movement;
-            if (currentPosition > 26)
-            {
-                currentPosition = 26;
-                mapScript.NewRoom(27);
-                return;
-            }
-            mapScript.NewRoom(currentPosition);
+        int movement = Random.Range(1, 7);
+        currentPosition += movement;
+
+        if (currentPosition >= 28)
+        {
+             currentPosition = 27;
+             //mapScript.NewRoom(27);
+             //return;
+        }
+
+        mapScript.NewRoom(currentPosition);
         IsBusy(false);
     }
 
     void FinalEncounter()
     {
+        if (exp >= 8)
+        {
+            dialogMan.RoomInt(4);
+            monName = "Dragon";
+            enemyHP = 10;
+            dialogMan.NewHP(enemyHP);
+            dialogMan.NewDialog("You encountered a " + monName + "!");
+        }
+        else
+        {
+            dialogMan.NewDialog("Alas, the dragon’s eyes stare at you and places you under his spell. " +
+                "You try to move but fail to do so and find yourself torched by the dragon’s fire. " +
+                "If only you had more experience, you could have seen it coming.");
+            dialogMan.GameOver();
 
+        }
     }
 
     public void Attack()
@@ -242,14 +259,19 @@ public class YarraScript : MonoBehaviour
         {
             exp++;
             dialogMan.ExpUpdate(exp);
-            dialogMan.CloseDialogBox();
+            if(currentPosition == 27)
+            {
+                dialogMan.NewDialog("Due to your cunning and experience, you have defeated the deadly dragon. " +
+                    "Your quest has ended good sir. You’ve obtained the Chalice of knowledge and all of earth’s mysteries are revealed.");
+                dialogMan.GameOver();
+            }
         }
         else
         {
             dialogMan.NewDialog("You Died...");
             dialogMan.GameOver();
         }
-    }
+    }   
 
     public void NewWeapon()
     {
@@ -260,7 +282,7 @@ public class YarraScript : MonoBehaviour
 
     void Encounter()
     {
-        if(currentPosition == 28)
+        if(currentPosition >= 28)
         {
             FinalEncounter();
             return;

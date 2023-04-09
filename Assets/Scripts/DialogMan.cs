@@ -52,6 +52,13 @@ public class DialogMan : MonoBehaviour
             restButton.SetActive(false);
             weaponButton.SetActive(false);
         }
+        else if(roomType == 4)
+        {
+            restButton.SetActive(false);
+            weaponButton.SetActive(false);
+            encounterButton.SetActive(true);
+            
+        }
         else
         {
             Debug.Log("NewDialog had a number it wasn't supposed to have");
@@ -93,7 +100,7 @@ public class DialogMan : MonoBehaviour
 
     public void WeaponUpdate(int newWeaponDamage, string newWeaponName)
     {
-        WeaponModifier.text = newWeaponDamage.ToString();
+        WeaponModifier.text = "+" + newWeaponDamage.ToString();
         WeaponName.text = newWeaponName;        
     }
 }
