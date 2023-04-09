@@ -7,10 +7,17 @@ public class DialogMan : MonoBehaviour
 {
     public Text dialog;
     public Text expText;
+    public Text hpText;
+    public Text rollText;
+    public Text WeaponName;
+    public Text WeaponModifier;
+
     public GameObject dialogBox;
     public GameObject restButton;
     public GameObject weaponButton;
     public GameObject encounterButton;
+    public GameObject continueButton; //assign me
+    public GameObject gameOverButton; //asignme
 
 
     //[SerializeField] YarraScript yarraScript;
@@ -30,14 +37,20 @@ public class DialogMan : MonoBehaviour
         if (roomType == 1)
         {
             restButton.SetActive(true);
+            weaponButton.SetActive(false);
+            encounterButton.SetActive(false);
         }
         else if(roomType == 2)
         {
-            //weaponButton.SetActive(true);
+            weaponButton.SetActive(true);
+            restButton.SetActive(false);
+            encounterButton.SetActive(false);
         }
         else if(roomType == 3)
         {
-            //encounterButton.SetActive(true);
+            encounterButton.SetActive(true);
+            restButton.SetActive(false);
+            weaponButton.SetActive(false);
         }
         else
         {
@@ -46,6 +59,15 @@ public class DialogMan : MonoBehaviour
         dialog.text = newText;        
     }
 
+    public void NewRoll(int newRoll)
+    {
+        rollText.text = "Roll: \n" + newRoll.ToString();
+    }
+
+    public void NewHP(int newHP)
+    {
+        hpText.text = "Enemy HP: \n" + newHP.ToString();
+    }
 
 
     public void CloseDialogBox()
@@ -60,8 +82,18 @@ public class DialogMan : MonoBehaviour
         dialogBox.SetActive(false);
     }
 
-    public void WeaponUpdate()
+    public void GameOver()
     {
+        restButton.SetActive(false);
+        weaponButton.SetActive(false);
+        encounterButton.SetActive(false);
+        continueButton.SetActive(false);
+        gameOverButton.SetActive(true);
+    }
 
+    public void WeaponUpdate(int newWeaponDamage, string newWeaponName)
+    {
+        WeaponModifier.text = newWeaponDamage.ToString();
+        WeaponName.text = newWeaponName;        
     }
 }

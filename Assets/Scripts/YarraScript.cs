@@ -7,22 +7,19 @@ using System.Linq;
 public class YarraScript : MonoBehaviour
 {
     public int exp;
-    public static int weaponDamage;
+    int weaponDamage;
+    string weaponName;
+    int newWeaponDamage;
 
     [SerializeField] int currentPosition; //private this when done
 
     public bool isBusy;
 
-    int crossbow = 3;
-    int flail = 4;
-    int broadSword = 5;
-    int dragonSlayer = 6;
-    int spellOfTheGods = 7;
-
     string monName;
+    int enemyHP;
 
 
-   [SerializeField] MapScript mapScript;
+    [SerializeField] MapScript mapScript;
     [SerializeField] DialogMan dialogMan;
 
     [SerializeField] RoomType[] roomTypeArray;
@@ -30,18 +27,20 @@ public class YarraScript : MonoBehaviour
     [SerializeField] EnemyType[] enemyTypeArray;
 
     [SerializeField] List<EnemyType> enemyTypeList;
+    [SerializeField] List<WeaponType> weaponTypeList;
 
 
     private void Start()
     {
         currentPosition = 0;
         exp = 0;
-        weaponDamage = 0;
+        weaponDamage = 2;
         IsBusy(false);
         roomTypeArray = RoomAssigner();
         weaponTypeArray = WeaponAssigner();
         enemyTypeArray = EnemyAssigner();
         enemyTypeList = enemyTypeArray.ToList();
+        weaponTypeList = weaponTypeArray.ToList();
     }
 
     public void Dismount()
@@ -235,24 +234,103 @@ public class YarraScript : MonoBehaviour
 
     }
 
-    public int Attack()
+    public void Attack()
     {
         int damage = Random.Range(1, 7) + weaponDamage;
-        return damage;
+        dialogMan.NewRoll(damage);
+        if (damage >= enemyHP) 
+        {
+            exp++;
+            dialogMan.ExpUpdate(exp);
+            dialogMan.CloseDialogBox();
+        }
+        else
+        {
+            dialogMan.NewDialog("You Died...");
+            dialogMan.GameOver();
+        }
     }
 
-    public void NewWeapon(int newDamage)
+    public void NewWeapon()
     {
-        weaponDamage = newDamage;
+        weaponDamage = newWeaponDamage;
+        dialogMan.WeaponUpdate(weaponDamage, weaponName);
+        dialogMan.CloseDialogBox();
     }
 
     void Encounter()
     {
-        int i = Random.Range(0, enemyTypeList.Count);
+        if(currentPosition == 28)
+        {
+            FinalEncounter();
+            return;
+        }
+        int x = Random.Range(0, enemyTypeList.Count-1);
         dialogMan.RoomInt(3);
-        monName = enemyTypeList[i].ToString();
+        monName = enemyTypeList[x].ToString();
         dialogMan.NewDialog("You encountered a " + monName + "!");
-        enemyTypeList.RemoveAt(i);
+        if (monName == "Dragon")
+        {
+            enemyHP =10;
+        }
+        else if (monName == "Goblin")
+        {
+            enemyHP = 3;
+        }
+        else if (monName == "Troll")
+        {
+            enemyHP = 5;
+        }
+        else if (monName == "Bandit")
+        {
+            enemyHP = 3;
+        }
+        else if (monName == "Fanatic")
+        {
+            enemyHP = 3;
+        }
+        else if (monName == "Cultist")
+        {
+            enemyHP = 3;
+        }
+        else if (monName == "Bear")
+        {
+            enemyHP = 4;
+        }
+        else if (monName == "gryphon")
+        {
+            enemyHP = 6;
+        }
+        else if (monName == "Wyvern")
+        {
+            enemyHP = 7;
+        }
+        else if (monName == "Harpy")
+        {
+            enemyHP = 4;
+        }
+        else if (monName == "Mimic")
+        {
+            enemyHP = 5;
+        }
+        else if (monName == "Karen")
+        {
+            enemyHP = 6;
+        }
+        else if (monName == "AnimatedWeapon")
+        {
+            enemyHP = 3;
+        }
+        else if (monName == "Fire Elemental")
+        {
+            enemyHP = 5;
+        }
+        else if (monName == "Depression")
+        {
+            enemyHP = 7;
+        }
+        dialogMan.NewHP(enemyHP);
+        enemyTypeList.RemoveAt(x);
     }
 
     void Rest()
@@ -263,10 +341,32 @@ public class YarraScript : MonoBehaviour
 
     void Loot()
     {
+        int x = Random.Range(0, weaponTypeList.Count);
+        weaponName = weaponTypeList[x].ToString();
         dialogMan.RoomInt(2);
-        //make a variable that randomly selects a weapon
-        dialogMan.NewDialog("You stumble upon a "  );
-        Debug.Log("Loot was selected");
+        if (weaponName == "Crossbow")
+        {
+            newWeaponDamage = 3;
+        }
+        else if (weaponName == "Flail")
+        {
+            newWeaponDamage = 4;
+        }
+        else if (weaponName == "BroadSword")
+        {
+            newWeaponDamage = 5;
+        }
+        else if (weaponName == "DragonSlayer")
+        {
+            newWeaponDamage = 6;
+        }
+        else if (weaponName == "SpellOfTheGods")
+        {
+            newWeaponDamage = 7;
+        }
+
+        dialogMan.NewDialog("You stumble upon a " + weaponName + " +" + newWeaponDamage + ". \n Will you replace your current weapon with the " + weaponName + "?");
+        weaponTypeList.RemoveAt(x);
     }
 
     public void IsBusy(bool isItBusy)
@@ -279,8 +379,6 @@ public class YarraScript : MonoBehaviour
         exp++;
         dialogMan.ExpUpdate(exp);
     }
-
-
 
 }
 
