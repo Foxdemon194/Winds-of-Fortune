@@ -239,6 +239,7 @@ public class YarraScript : MonoBehaviour
             monName = "Dragon";
             enemyHP = 10;
             dialogMan.NewHP(enemyHP);
+            dialogMan.NewEnemySprite(monName);
             dialogMan.NewDialog("You encountered a " + monName + "!");
         }
         else
@@ -246,6 +247,7 @@ public class YarraScript : MonoBehaviour
             dialogMan.NewDialog("Alas, the dragon’s eyes stare at you and places you under his spell. " +
                 "You try to move but fail to do so and find yourself torched by the dragon’s fire. " +
                 "If only you had more experience, you could have seen it coming.");
+            dialogMan.NewEnemySprite("Dragon");
             dialogMan.GameOver();
 
         }
